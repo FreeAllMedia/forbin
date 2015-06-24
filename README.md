@@ -52,7 +52,7 @@ class ApplicationController extends Controller {
 
 # Quality and Compatibility
 
-[![Build Status](https://travis-ci.org/FreeAllMedia/forbin.png?branch=master)](https://travis-ci.org/FreeAllMedia/forbin) [![Coverage Status](https://coveralls.io/repos/FreeAllMedia/forbin/badge.svg)](https://coveralls.io/r/FreeAllMedia/forbin) [![Code Climate](https://codeclimate.com/github/FreeAllMedia/forbin/gpa.svg)](https://codeclimate.com/github/FreeAllMedia/forbin/feed) [![Dependency Status](https://david-dm.org/FreeAllMedia/forbin.png?theme=shields.io)](https://david-dm.org/FreeAllMedia/forbin?theme=shields.io) [![Dev Dependency Status](https://david-dm.org/FreeAllMedia/forbin/dev-status.svg)](https://david-dm.org/FreeAllMedia/forbin?theme=shields.io#info=devDependencies)
+[![Build Status](https://travis-ci.org/FreeAllMedia/forbin.png?branch=master)](https://travis-ci.org/FreeAllMedia/forbin) [![Coverage Status](https://coveralls.io/repos/FreeAllMedia/forbin/badge.svg)](https://coveralls.io/r/FreeAllMedia/forbin) [![Code Climate](https://codeclimate.com/github/FreeAllMedia/forbin/badges/gpa.svg)](https://codeclimate.com/github/FreeAllMedia/forbin) [![Dependency Status](https://david-dm.org/FreeAllMedia/forbin.png?theme=shields.io)](https://david-dm.org/FreeAllMedia/forbin?theme=shields.io) [![Dev Dependency Status](https://david-dm.org/FreeAllMedia/forbin/dev-status.svg)](https://david-dm.org/FreeAllMedia/forbin?theme=shields.io#info=devDependencies)
 
 *Every single build and release is automatically tested on the following platforms:*
 
