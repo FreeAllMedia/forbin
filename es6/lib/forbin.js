@@ -7,8 +7,8 @@ const setupFilters = Symbol("setupFilters"),
     processFilters = Symbol("processFilters"),
     processBeforeFilters = Symbol("processBeforeFilters"),
     processAfterFilters = Symbol("processAfterFilters"),
-    actions = Symbol("actions"),
-    addFilter = Symbol("addFilter");
+    addFilter = Symbol("addFilter"),
+    getFilters = Symbol("getFilters");
 
 /**
  * Request/Response controller with filters.
@@ -93,9 +93,10 @@ export default class Controller {
 
   /* Private Methods */
   [addFilter](owner, ...options) {
+    let filter = null;
     switch(options.length) {
       case 1:
-        const filter = options[0];
+        filter = options[0];
         // Filter to run before all actions, no skip available
         this.actionNames.forEach((actionName) => {
           owner.push({
@@ -107,8 +108,8 @@ export default class Controller {
       case 2:
         if (Array.isArray(options[0])) {
           // A. Filter to run before all actions, with skip available
-          const   actionArray = options[0],
-              filter = options[1];
+          const actionArray = options[0];
+          filter = options[1];
           actionArray.forEach((action) => {
             owner.push({
               action: action,
@@ -117,8 +118,8 @@ export default class Controller {
           }, this);
         } else {
           // B. Filter to run before a specific action, no skip available
-          const   action = options[0],
-              filter = options[1];
+          const action = options[0];
+          filter = options[1];
 
           owner.push({
             action: action,
@@ -210,18 +211,18 @@ export default class Controller {
     );
   }
 
-  [processBeforeFilters](action, request, response, callback) {
-    const applicableFilters = this._filters.before.filter((filter) => {
+  [getFilters](action, filterObject) {
+    return filterObject.filter((filter) => {
       return (filter.action === this[action]);
     });
-    this[processFilters](applicableFilters, request, response, callback);
+  }
+
+  [processBeforeFilters](action, request, response, callback) {
+    this[processFilters](this[getFilters](action, this._filters.before), request, response, callback);
   }
 
   [processAfterFilters](action, request, response, callback) {
-    const applicableFilters = this._filters.after.filter((filter) => {
-      return (filter.action === this[action]);
-    });
-    this[processFilters](applicableFilters, request, response, callback);
+    this[processFilters](this[getFilters](action, this._filters.after), request, response, callback);
   }
 
   [actionNames]() {

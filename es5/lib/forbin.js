@@ -21,8 +21,8 @@ var setupFilters = Symbol("setupFilters"),
     processFilters = Symbol("processFilters"),
     processBeforeFilters = Symbol("processBeforeFilters"),
     processAfterFilters = Symbol("processAfterFilters"),
-    actions = Symbol("actions"),
-    addFilter = Symbol("addFilter");
+    addFilter = Symbol("addFilter"),
+    getFilters = Symbol("getFilters");
 
 /**
  * Request/Response controller with filters.
@@ -144,9 +144,10 @@ var Controller = (function () {
         options[_key5 - 1] = arguments[_key5];
       }
 
+      var filter = null;
       switch (options.length) {
         case 1:
-          var filter = options[0];
+          filter = options[0];
           // Filter to run before all actions, no skip available
           this.actionNames.forEach(function (actionName) {
             owner.push({
@@ -157,25 +158,23 @@ var Controller = (function () {
           break;
         case 2:
           if (Array.isArray(options[0])) {
-            (function () {
-              // A. Filter to run before all actions, with skip available
-              var actionArray = options[0],
-                  filter = options[1];
-              actionArray.forEach(function (action) {
-                owner.push({
-                  action: action,
-                  filter: filter
-                });
-              }, _this2);
-            })();
+            // A. Filter to run before all actions, with skip available
+            var actionArray = options[0];
+            filter = options[1];
+            actionArray.forEach(function (action) {
+              owner.push({
+                action: action,
+                filter: filter
+              });
+            }, this);
           } else {
             // B. Filter to run before a specific action, no skip available
-            var action = options[0],
-                _filter = options[1];
+            var action = options[0];
+            filter = options[1];
 
             owner.push({
               action: action,
-              filter: _filter
+              filter: filter
             });
           }
           break;
@@ -248,24 +247,23 @@ var Controller = (function () {
       });
     }
   }, {
-    key: processBeforeFilters,
-    value: function (action, request, response, callback) {
+    key: getFilters,
+    value: function (action, filterObject) {
       var _this4 = this;
 
-      var applicableFilters = this._filters.before.filter(function (filter) {
+      return filterObject.filter(function (filter) {
         return filter.action === _this4[action];
       });
-      this[processFilters](applicableFilters, request, response, callback);
+    }
+  }, {
+    key: processBeforeFilters,
+    value: function (action, request, response, callback) {
+      this[processFilters](this[getFilters](action, this._filters.before), request, response, callback);
     }
   }, {
     key: processAfterFilters,
     value: function (action, request, response, callback) {
-      var _this5 = this;
-
-      var applicableFilters = this._filters.after.filter(function (filter) {
-        return filter.action === _this5[action];
-      });
-      this[processFilters](applicableFilters, request, response, callback);
+      this[processFilters](this[getFilters](action, this._filters.after), request, response, callback);
     }
   }, {
     key: actionNames,
