@@ -1,7 +1,7 @@
 import gulp from "gulp";
 import mocha from "gulp-mocha";
+import "superstack";
 import istanbul from "gulp-istanbul";
-import codeClimate from "./codeClimate";
 import paths from "../paths.json";
 
 import chai from "chai";
