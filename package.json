@@ -1,6 +1,6 @@
 {
   "name": "forbin",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "ES6 Component for controllers with filter support.",
   "main": "index.js",
   "scripts": {
