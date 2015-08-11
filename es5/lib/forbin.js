@@ -14,6 +14,10 @@ var _flowsync = require("flowsync");
 
 var _flowsync2 = _interopRequireDefault(_flowsync);
 
+var _incognito = require("incognito");
+
+var _incognito2 = _interopRequireDefault(_incognito);
+
 var setupFilters = Symbol("setupFilters"),
     setupDynamicProperties = Symbol("setupDynamicProperties"),
     actionNames = Symbol("actionNames"),
@@ -64,7 +68,7 @@ var Controller = (function () {
         options[_key2] = arguments[_key2];
       }
 
-      this[addFilter].apply(this, [this._filters.before].concat(options));
+      this[addFilter].apply(this, [(0, _incognito2["default"])(this)._filters.before].concat(options));
     }
   }, {
     key: "after",
@@ -77,7 +81,7 @@ var Controller = (function () {
         options[_key3] = arguments[_key3];
       }
 
-      this[addFilter].apply(this, [this._filters.after].concat(options));
+      this[addFilter].apply(this, [(0, _incognito2["default"])(this)._filters.after].concat(options));
     }
   }, {
     key: "skip",
@@ -107,7 +111,9 @@ var Controller = (function () {
           break;
       }
 
-      this._filters.after.concat(this._filters.before).forEach(function (filterDetails) {
+      var _ = (0, _incognito2["default"])(this);
+
+      _._filters.after.concat(_._filters.before).forEach(function (filterDetails) {
         if (filterDetails.filter === filterToAvoid && actionsToAvoid.length === 0) {
           filterDetails.skip = true;
         } else {
@@ -192,16 +198,11 @@ var Controller = (function () {
   }, {
     key: setupFilters,
     value: function () {
-      Object.defineProperties(this, {
-        "_filters": {
-          writable: true,
-          enumerable: false,
-          value: {
-            before: [],
-            after: []
-          }
-        }
-      });
+      var _ = (0, _incognito2["default"])(this);
+      _._filters = {
+        before: [],
+        after: []
+      };
 
       this.actionNames.forEach(this[setupFilterProcessor], this);
     }
@@ -258,12 +259,12 @@ var Controller = (function () {
   }, {
     key: processBeforeFilters,
     value: function (action, request, response, callback) {
-      this[processFilters](this[getFilters](action, this._filters.before), request, response, callback);
+      this[processFilters](this[getFilters](action, (0, _incognito2["default"])(this)._filters.before), request, response, callback);
     }
   }, {
     key: processAfterFilters,
     value: function (action, request, response, callback) {
-      this[processFilters](this[getFilters](action, this._filters.after), request, response, callback);
+      this[processFilters](this[getFilters](action, (0, _incognito2["default"])(this)._filters.after), request, response, callback);
     }
   }, {
     key: actionNames,

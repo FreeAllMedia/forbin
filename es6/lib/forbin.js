@@ -1,4 +1,5 @@
 import flowsync from "flowsync";
+import privateData from "incognito";
 
 const setupFilters = Symbol("setupFilters"),
     setupDynamicProperties = Symbol("setupDynamicProperties"),
@@ -35,14 +36,14 @@ export default class Controller {
    * @method before
    */
   before(...options) {
-    this[addFilter](this._filters.before, ...options);
+    this[addFilter](privateData(this)._filters.before, ...options);
   }
 
   /**
    * Set a function to be called after the specified action.
    */
   after(...options) {
-    this[addFilter](this._filters.after, ...options);
+    this[addFilter](privateData(this)._filters.after, ...options);
   }
 
   skip(...options) {
@@ -65,7 +66,9 @@ export default class Controller {
       break;
     }
 
-    this._filters.after.concat(this._filters.before).forEach(
+    const _ = privateData(this);
+
+    _._filters.after.concat(_._filters.before).forEach(
       (filterDetails) => {
         if(filterDetails.filter === filterToAvoid && actionsToAvoid.length === 0) {
           filterDetails.skip = true;
@@ -142,19 +145,11 @@ export default class Controller {
   }
 
   [setupFilters]() {
-    Object.defineProperties(
-      this,
-      {
-        "_filters": {
-          writable: true,
-          enumerable: false,
-          value: {
-            before: [],
-            after: []
-          }
-        }
-      }
-    );
+    const _ = privateData(this);
+    _._filters = {
+      before: [],
+      after: []
+    };
 
     this.actionNames.forEach(this[setupFilterProcessor], this);
   }
@@ -218,11 +213,11 @@ export default class Controller {
   }
 
   [processBeforeFilters](action, request, response, callback) {
-    this[processFilters](this[getFilters](action, this._filters.before), request, response, callback);
+    this[processFilters](this[getFilters](action, privateData(this)._filters.before), request, response, callback);
   }
 
   [processAfterFilters](action, request, response, callback) {
-    this[processFilters](this[getFilters](action, this._filters.after), request, response, callback);
+    this[processFilters](this[getFilters](action, privateData(this)._filters.after), request, response, callback);
   }
 
   [actionNames]() {
