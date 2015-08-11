@@ -1,6 +1,6 @@
 {
   "name": "forbin",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "ES6 Component for controllers with filter support.",
   "main": "index.js",
   "scripts": {
@@ -34,7 +34,8 @@
   },
   "homepage": "https://github.com/FreeAllMedia/forbin",
   "dependencies": {
-    "flowsync": "^0.1.0"
+    "flowsync": "^0.1.0",
+    "incognito": "^0.1.2"
   },
   "devDependencies": {
     "babel": "^5.5.6",
