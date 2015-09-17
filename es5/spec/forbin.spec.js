@@ -41,13 +41,13 @@ describe("Controller(...options)", function () {
 
 			_createClass(ClientController, [{
 				key: "create",
-				value: function create(request, response) {}
+				value: function create() {}
 			}, {
 				key: "update",
-				value: function update(request, response) {}
+				value: function update() {}
 			}, {
 				key: "delete",
-				value: function _delete(request, response) {}
+				value: function _delete() {}
 			}]);
 
 			return ClientController;
@@ -706,6 +706,87 @@ describe("Controller(...options)", function () {
 						});
 					});
 				});
+			});
+		});
+
+		describe("(binding)", function () {
+			var clean = Symbol("clean"),
+			    throwIt = Symbol("throwIt"),
+			    actionSpy = undefined,
+			    actionObject = undefined,
+			    beforeFilterSpy = undefined,
+			    afterFilterSpy = undefined,
+			    beforeFilterObject = undefined,
+			    afterFilterObject = undefined,
+			    appleController = undefined;
+
+			var AppleController = (function (_Controller4) {
+				function AppleController() {
+					_classCallCheck(this, AppleController);
+
+					if (_Controller4 != null) {
+						_Controller4.apply(this, arguments);
+					}
+				}
+
+				_inherits(AppleController, _Controller4);
+
+				_createClass(AppleController, [{
+					key: "filters",
+					value: function filters() {
+						this.before(this[clean]);
+						this.after(this[throwIt]);
+					}
+				}, {
+					key: clean,
+					value: function (request, response, next) {
+						beforeFilterSpy(this);
+						next();
+					}
+				}, {
+					key: throwIt,
+					value: function (request, response, next) {
+						afterFilterSpy(this);
+						next();
+					}
+				}, {
+					key: "eat",
+					value: function eat(request, response) {
+						actionSpy(this);
+						response.end();
+					}
+				}]);
+
+				return AppleController;
+			})(_index2["default"]);
+
+			before(function (done) {
+				actionSpy = _sinon2["default"].spy(function (object) {
+					actionObject = object;
+				});
+
+				beforeFilterSpy = _sinon2["default"].spy(function (object) {
+					beforeFilterObject = object;
+				});
+
+				afterFilterSpy = _sinon2["default"].spy(function (object) {
+					afterFilterObject = object;
+				});
+
+				appleController = new AppleController();
+				appleController.eat({}, { end: done });
+			});
+
+			it("should allow to access this on the action", function () {
+				actionObject.should.eql(appleController);
+			});
+
+			it("should allow to access this on the before filter", function () {
+				beforeFilterObject.should.eql(appleController);
+			});
+
+			it("should allow to access this on the after filter", function () {
+				afterFilterObject.should.eql(appleController);
 			});
 		});
 	});

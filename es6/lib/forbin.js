@@ -159,10 +159,14 @@ export default class Controller {
     const self = this;
 
     this[actionName] = (request, response) => {
-      const originalEnd = response.end;
+      let originalEnd;
+      if(response && response.end) {
+         originalEnd = response.end;
+      }
+
       flowsync.series([
         function beforeFilters(next) {
-          self[processBeforeFilters](
+          self[processBeforeFilters].call(self,
             actionName,
             request,
             response,
@@ -170,14 +174,17 @@ export default class Controller {
           );
         },
         function action(next) {
-          response.end = (...args) => {
-            originalEnd.apply(this, ...args);
-            next();
-          };
-          originalAction(request, response);
+          if(originalEnd) {
+            response.end = (...args) => {
+              originalEnd.apply(self, ...args);
+              next();
+            };
+          }
+
+          originalAction.call(self, request, response);
         },
         function afterFilters(next) {
-          self[processAfterFilters](
+          self[processAfterFilters].call(self,
             actionName,
             request,
             response,
@@ -190,12 +197,13 @@ export default class Controller {
   }
 
   [processFilters](filters, request, response, callback) {
+    const self = this;
     flowsync.eachSeries(
       filters,
       function processFilter(filterDetails, next) {
         //call filter if not skipped
         if(filterDetails.skip !== true) {
-          filterDetails.filter(request, response, next);
+          filterDetails.filter.call(self, request, response, next);
         } else {
           next();
         }
