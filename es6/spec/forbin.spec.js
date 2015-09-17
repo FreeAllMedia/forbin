@@ -7,9 +7,9 @@ describe("Controller(...options)", () => {
 		let clientController;
 
 		class ClientController extends Controller {
-			create(request, response) {}
-			update(request, response) {}
-			delete(request, response) {}
+			create() {}
+			update() {}
+			delete() {}
 		}
 
 		beforeEach(() => {
@@ -621,6 +621,69 @@ describe("Controller(...options)", () => {
 						);
 					});
 				});
+			});
+		});
+
+		describe("(binding)", () => {
+			let clean = Symbol("clean"),
+				throwIt = Symbol("throwIt"),
+				actionSpy,
+				actionObject,
+				beforeFilterSpy,
+				afterFilterSpy,
+				beforeFilterObject,
+				afterFilterObject,
+				appleController;
+
+			class AppleController extends Controller {
+				filters() {
+					this.before(this[clean]);
+					this.after(this[throwIt]);
+				}
+
+				[clean](request, response, next) {
+					beforeFilterSpy(this);
+					next();
+				}
+
+				[throwIt](request, response, next) {
+					afterFilterSpy(this);
+					next();
+				}
+
+				eat(request, response) {
+					actionSpy(this);
+					response.end();
+				}
+			}
+
+			before((done) => {
+				actionSpy = sinon.spy((object) => {
+					actionObject = object;
+				});
+
+				beforeFilterSpy = sinon.spy((object) => {
+					beforeFilterObject = object;
+				});
+
+				afterFilterSpy = sinon.spy((object) => {
+					afterFilterObject = object;
+				});
+
+				appleController = new AppleController();
+				appleController.eat({}, {end: done});
+			});
+
+			it("should allow to access this on the action", () => {
+				actionObject.should.eql(appleController);
+			});
+
+			it("should allow to access this on the before filter", () => {
+				beforeFilterObject.should.eql(appleController);
+			});
+
+			it("should allow to access this on the after filter", () => {
+				afterFilterObject.should.eql(appleController);
 			});
 		});
 	});
