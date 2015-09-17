@@ -213,33 +213,39 @@ var Controller = (function () {
       var self = this;
 
       this[actionName] = function (request, response) {
-        var originalEnd = response.end;
+        var originalEnd = undefined;
+        if (response && response.end) {
+          originalEnd = response.end;
+        }
+
         _flowsync2["default"].series([function beforeFilters(next) {
-          self[processBeforeFilters](actionName, request, response, next);
+          self[processBeforeFilters].call(self, actionName, request, response, next);
         }, function action(next) {
-          var _this3 = this;
+          if (originalEnd) {
+            response.end = function () {
+              for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+                args[_key6] = arguments[_key6];
+              }
 
-          response.end = function () {
-            for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-              args[_key6] = arguments[_key6];
-            }
+              originalEnd.apply.apply(originalEnd, [self].concat(args));
+              next();
+            };
+          }
 
-            originalEnd.apply.apply(originalEnd, [_this3].concat(args));
-            next();
-          };
-          originalAction(request, response);
+          originalAction.call(self, request, response);
         }, function afterFilters(next) {
-          self[processAfterFilters](actionName, request, response, next);
+          self[processAfterFilters].call(self, actionName, request, response, next);
         }]);
       };
     }
   }, {
     key: processFilters,
     value: function (filters, request, response, callback) {
+      var self = this;
       _flowsync2["default"].eachSeries(filters, function processFilter(filterDetails, next) {
         //call filter if not skipped
         if (filterDetails.skip !== true) {
-          filterDetails.filter(request, response, next);
+          filterDetails.filter.call(self, request, response, next);
         } else {
           next();
         }
@@ -250,10 +256,10 @@ var Controller = (function () {
   }, {
     key: getFilters,
     value: function (action, filterObject) {
-      var _this4 = this;
+      var _this3 = this;
 
       return filterObject.filter(function (filter) {
-        return filter.action === _this4[action];
+        return filter.action === _this3[action];
       });
     }
   }, {
